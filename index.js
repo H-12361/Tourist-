@@ -85,6 +85,9 @@ app.use((req, res, next) => {
 });
 
 // ================== ROUTES ==================
+app.get("/", (req, res) => {          // ✅ Yeh line add karo
+  res.redirect("/listing");
+});
 app.use("/listing", listingRouter);
 app.use("/listing/:id/reviews", reviewsRouter);
 app.use("/", UserRouter);
