@@ -11,8 +11,12 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./util/ExpressError.js"); //express error file use
 const Mongo_Url = "mongodb://127.0.0.1:27017/wonderlust";
+// const dbUrl=process.env.ATLAS_DB;
 
 const session = require("express-session");
+const MongoStore = require("connect-mongo").default;
+
+
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -20,6 +24,7 @@ const User = require("./modles/user.js");
 const UserRouter =require("./router/user.js");
 const listingRouter = require("./router/listing.js");
 const reviewsRouter = require("./router/review.js");
+const { error } = require('console');
 
 
 main()
@@ -42,17 +47,34 @@ app.use(methodOverride("_method")); //used to send put req
 app.engine("ejs", ejsMate); //use to templating
 app.use(express.static(path.join(__dirname, "/public")));
 
+const store = MongoStore.create({
+  mongoUrl: "mongodb://127.0.0.1:27017/wonderlust",
+  crypto: {
+    secret: "mjjshjdnsam",
+  },
+  touchAfter: 24 * 3600,
+});
+
+
+// here  error handle mongoose session store 
+store.on('error',()=>{
+  console.log(`error accour in session ${error}`)
+})
+
+
 // use session concept
 const sessionOption = {
+   store,
   secret: "mjjshjdnsam",
   resave: false,
-  saveUninitialized: true,
-  Cookie: {
-    expries: Date.now() + 7 * 24 * 60 * 60 * 1000,
+   saveUninitialized: true,
+   cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
   },
 };
+
 //use the session
 app.use(session(sessionOption));
 //use flash
