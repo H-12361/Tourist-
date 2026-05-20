@@ -89,10 +89,10 @@ app.use("/listing", listingRouter);
 app.use("/listing/:id/reviews", reviewsRouter);
 app.use("/", UserRouter);
 
-// ================== ERROR HANDLER ==================
-app.all("*splat", (req, res, next) => {          // ✅ Express v5 fix
-  next(new ExpressError(404, "Page Not Found"));
-});
+// // ================== ERROR HANDLER ==================
+// app.all("*splat", (req, res, next) => {          // ✅ Express v5 fix
+//   next(new ExpressError(404, "Page Not Found"));
+// });
 
 app.use((err, req, res, next) => {
   let { status = 500, message = "Something went wrong" } = err;
