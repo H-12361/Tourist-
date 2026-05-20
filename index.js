@@ -1,7 +1,6 @@
-if(process.env.NODE_ENV !="production"){
-require('dotenv').config()
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
 }
-
 
 const express = require("express");
 const app = express();
@@ -9,78 +8,67 @@ const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const ExpressError = require("./util/ExpressError.js"); //express error file use
-const Mongo_Url = "mongodb://127.0.0.1:27017/wonderlust";
-// const dbUrl=process.env.ATLAS_DB;
-
+const ExpressError = require("./util/ExpressError");
 const session = require("express-session");
-const MongoStore = require("connect-mongo").default;
-
-
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
-const User = require("./modles/user.js");
-const UserRouter =require("./router/user.js");
-const listingRouter = require("./router/listing.js");
-const reviewsRouter = require("./router/review.js");
-const { error } = require('console');
+const MongoStore = require("connect-mongo").default || require("connect-mongo");
 
+const User = require("./modles/user");            // ✅ typo fix
+const UserRouter = require("./router/user");
+const listingRouter = require("./router/listing");
+const reviewsRouter = require("./router/review");
 
-main()
-  .then(() => {
-    console.log("connected to db");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// ================== DATABASE ==================
+const Mongo_Url = process.env.ATLASDB_URL;
 
-async function main() {
-  await mongoose.connect(Mongo_Url);
-}
+mongoose
+  .connect(Mongo_Url)
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => console.log(err));
 
+// ================== VIEW ENGINE ==================
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({ extended: true })); // use to read undefined data post by post method
-app.use(express.json()); // agar JSON body bhejni ho
-app.use(methodOverride("_method")); //used to send put req
-app.engine("ejs", ejsMate); //use to templating
-app.use(express.static(path.join(__dirname, "/public")));
+app.engine("ejs", ejsMate);
 
+// ================== MIDDLEWARE ==================
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
+
+// ================== SESSION STORE ==================
 const store = MongoStore.create({
-  mongoUrl: "mongodb://127.0.0.1:27017/wonderlust",
+  mongoUrl: Mongo_Url,
   crypto: {
-    secret: "mjjshjdnsam",
+    secret: process.env.SESSION_SECRET,
   },
   touchAfter: 24 * 3600,
 });
 
+store.on("error", (err) => {
+  console.log("Session Store Error:", err);
+});
 
-// here  error handle mongoose session store 
-store.on('error',()=>{
-  console.log(`error accour in session ${error}`)
-})
-
-
-// use session concept
-const sessionOption = {
-   store,
-  secret: "mjjshjdnsam",
+const sessionOptions = {
+  store,
+  secret: process.env.SESSION_SECRET,
   resave: false,
-   saveUninitialized: true,
-   cookie: {
-    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+  saveUninitialized: false,
+  cookie: {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
   },
 };
 
-//use the session
-app.use(session(sessionOption));
-//use flash
+app.use(session(sessionOptions));
 app.use(flash());
 
-//authencation
+// ================== PASSPORT AUTH ==================
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
@@ -88,46 +76,30 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// app.get("/", (req, res) => {
-//   res.send("hi root node");
-// });
-
-//here carate middleware for flash use
+// ================== FLASH & CURRENT USER ==================
 app.use((req, res, next) => {
-  (res.locals.success = req.flash("success")),
-    (res.locals.error = req.flash("error")),
-    res.locals.curruser=req.user;
-    next();
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.curruser = req.user;
+  next();
 });
+
+// ================== ROUTES ==================
 app.use("/listing", listingRouter);
 app.use("/listing/:id/reviews", reviewsRouter);
-app.use("/",UserRouter);
+app.use("/", UserRouter);
 
+// ================== ERROR HANDLER ==================
+app.all("*splat", (req, res, next) => {          // ✅ Express v5 fix
+  next(new ExpressError(404, "Page Not Found"));
+});
 
-//middleware
 app.use((err, req, res, next) => {
-  let { status = 500, message = "something went wrong" } = err;
-  // res.status(status).send(message);
+  let { status = 500, message = "Something went wrong" } = err;
   res.status(status).render("error.ejs", { message });
 });
 
-// app.get("/demouser", async (req, res) => {
-//   let Fakeuser = new User({
-//     email: "harsh@gmial.com",
-//     username: "anna",
-//   });
-//   let regiseteruser = await User.register(Fakeuser, "hellowrold");
-//   res.send(regiseteruser);
-// });
-// // test the expresserror
-// // app.all * means all route check and no route prensent in your backend
-app.all(/.*/, (req, res, next) => {
-  next(new ExpressError(404, "Page not found!"));
-});
-
-
-
-
+// ================== SERVER ==================
 app.listen(8080, () => {
-  console.log("Server working port 8080 well");
+  console.log("🚀 Server running on port 8080");
 });
