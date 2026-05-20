@@ -1,47 +1,42 @@
-<nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/listing"><i class="fa-solid fa-compass"></i></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-md bg-white border-bottom sticky-top" style="z-index: 1030;">
+  <div class="container-fluid px-3">
+
+    <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="/listing">
+      <i class="fa-solid fa-compass" style="color: #e74c3c; font-size: 1.4rem;"></i>
+      <span class="text-dark">Tourist</span>
+    </a>
+
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" 
+            data-bs-target="#mainNav" aria-controls="mainNav" 
+            aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-       
-        <a class="nav-link" href="/listing">Explore</a>
-       <a class="nav-link disabled" aria-disabled="true"></a>
-      </div>
-    </div>
-      <nav class="navbar bg-body-tertiary">
-  <div class="container-fluid">
-    <form class="d-flex" role="search" action="/listing" method="GET">
-  <input 
-    class="form-control me-2"
-    type="search"
-    name="q"                 
-    placeholder="Search listings"
-    aria-label="Search"
-  />
-  <button class="btn btn-outline-success" type="submit">
-    Search
-  </button>
-</form>
 
-  </div>
-</nav>
+    <div class="collapse navbar-collapse bg-white pb-2" id="mainNav">
 
-     <div class="collapse navbar-collapse justify-content-end"   id="navbarNavAltMarkup">
-      <div class="navbar-nav ">
-         <a class="nav-link" href="/listing/new?">Add new listing</a>
-        <% if(!curruser) {%>
-        <a class="nav-link" aria-current="signup" href="/signup"><b>Signup </b></a>
-        <a class="nav-link" href="/login"><b>Login </b></a>
+      <form class="d-flex my-2 my-md-0 mx-md-3 flex-grow-1" role="search" 
+            action="/listing" method="GET">
+        <input class="form-control me-2" type="search" name="q"
+               placeholder="Search listings" aria-label="Search" />
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+
+      <div class="navbar-nav ms-auto align-items-start align-items-md-center gap-1 mt-2 mt-md-0">
+        <a class="nav-link text-dark" href="/listing/new">Add new listing</a>
+
+        <% if(!curruser) { %>
+          <a class="nav-link text-dark fw-semibold" href="/signup">Signup</a>
+          <a class="nav-link text-dark fw-semibold" href="/login">Login</a>
         <% } %>
 
-        <%if(curruser){%>
-        <a class="nav-link" href="/logout">Logout</a>
+        <% if(curruser) { %>
+          <span class="nav-link text-muted small">
+            <i class="fa-solid fa-user"></i> <%=curruser.username%>
+          </span>
+          <a class="nav-link text-dark" href="/logout">Logout</a>
         <% } %>
-        <a class="nav-link disabled" aria-disabled="true"></a>
       </div>
+
     </div>
   </div>
 </nav>

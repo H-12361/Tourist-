@@ -1,27 +1,38 @@
 <% layout("/layout/boilerplate") %>
-<div class="continer">
-    <div class="row">
-        <div class="col-4 offset-4">
-            <form action="/signup" method="POST" class="needs-validation " novalidate>
-                <h1 class="text-center"> Signup</h1>
-                <div class="mb-3">
-                <label for="username">Name</label>
-                <input type="text" name="username"  required class="form-control" ><br>
-                <div class="valid-feedback">Look Good</div>
-                </div>
-                <div class="mb-3">
-                 <label for="email">Email</label>
-                <input type="email" name="email"  required class="form-control">
-                </div>
-               
-                <div class="mb-3">
-                 <label for="password">Password</label>
-                <input type="password"  name="password"   class="form-control required">
-                </div>
-                <button class="btn btn-outline-dark">Signup</button>
 
-            </form>
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
 
+      <h2 class="text-center mb-4">Signup</h2>
+
+      <form action="/signup" method="POST" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" required class="form-control">
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Please enter username</div>
         </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" required class="form-control">
+          <div class="invalid-feedback">Please enter valid email</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" required class="form-control">
+          <div class="invalid-feedback">Please enter password</div>
+        </div>
+
+        <button class="btn btn-outline-dark w-100">Signup</button>
+
+        <p class="text-center mt-3">
+          Already have an account? <a href="/login">Login</a>
+        </p>
+      </form>
+
     </div>
+  </div>
 </div>
